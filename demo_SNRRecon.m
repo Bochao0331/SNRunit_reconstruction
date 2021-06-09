@@ -10,9 +10,9 @@
 %       (3) coil images: c_img_all (Nx x Ny x Ncoil x Nslice)Nslice
 %       (4) info: information obtained from TWIX (TE,TR,TurboFactor...)
 
-%   Example Raw data locate in: /mnt/sdata_new/Bochao/0528AppleESSE/RAW/ on MREL
-%   server;
-%   Example MAT files locate in: /mnt/sdata_new/Bochao/0528AppleESSE//MAT
+%   Example Raw data (.h5 & noise) locate in: /mnt/sdata_new/Bochao/VOL11_Lung/RAW/meas_MID00049_FID05416_tse_ES_BL_tra_bh_128_te15_esp15.h5
+%   Pre-scan Noise data locate in: /mnt/sdata_new/Bochao/VOL11_Lung/RAW/noise/noise_meas_MID00034_FID05401_tse_tra_bh_128_te15_esp15.h5
+%   Example MAT files locate in: /mnt/sdata_new/Bochao/VOL11_Lung/MAT/tse_ES_BL_tra_bh_128_te15_esp15.mat
 
 %	Author: Bochao Li
 %	Email: bochaoli@usc.edu
@@ -33,14 +33,14 @@ addpath(genpath(ismrmrd_directory));
 zero_shift_ind = 1; % zero-shift data index
 data_format = 'mat'; % Data reading option 'ismrmd'(Raw) or 'mat';
 Mat_folder = 'F:\USC\MREL\LowField\LungImaging\T2measurement\Data\0524VOL11Lung\MAT'; % Direcoty where MAT saved
-Mat_file = fullfile(Mat_folder,'tse_ES_BL_tra_bh_128_te11_esp11.mat'); % MAT name
+Mat_file = fullfile(Mat_folder,'tse_ES_BL_tra_bh_128_te15_esp15.mat'); % MAT name
 slice_index = 1; % sincle index
 %% ---- Loading data ----
 if strcmp(data_format, 'ismrmd')
     h5_folder = 'F:\USC\MREL\LowField\LungImaging\T2measurement\Data\0524VOL11Lung\RAW\h5';
     noise_folder = 'F:\USC\MREL\LowField\LungImaging\T2measurement\Data\0524VOL11Lung\RAW\noise';
-    h5_fileList = fullfile(h5_folder, 'meas_MID00032_FID05399_tse_tra_bh_128_te11_esp11.h5'); % Change to whatever pattern you need.
-    noise_fileList = fullfile(noise_folder, 'noise_meas_MID00032_FID05399_tse_tra_bh_128_te11_esp11.h5'); % Change to whatever pattern you need.
+    h5_fileList = fullfile(h5_folder, 'meas_MID00034_FID05401_tse_tra_bh_128_te15_esp15.h5'); % Change to whatever pattern you need.
+    noise_fileList = fullfile(noise_folder, 'noise_meas_MID00034_FID05401_tse_tra_bh_128_te15_esp15.h5'); % Change to whatever pattern you need.
     h5_Files = dir(h5_fileList);
     noise_Files = dir(noise_fileList);
     nFiles = length(h5_Files);
@@ -111,12 +111,7 @@ p = fft2c(kdata_prew{1}); % Ncoil x Nsample (Nx*Ny*Nslice)
 snr_rss = sqrt(2)*sqrt(sum(abs(p).^2,4));
 snr_walsh=  sum( conj(reshape(csm,[Nx, Ny, size(kdata_prew,3), Ncoil])) .* fft2c(kdata_prew{1}), 4) ./ sqrt(sum(abs(csm).^2,4)); % Coil combined images
 
-figure,imagesc(abs(rot90(snr_walsh,-1)),[0 20]);
-colormap(gray)
-axis off image
-colorbar
-
-figure,imagesc((rot90(snr_rss,-1)),[0 20]);
+figure,imagesc(real(rot90(snr_walsh,-1)),[0 20]);
 colormap(gray)
 axis off image
 colorbar
